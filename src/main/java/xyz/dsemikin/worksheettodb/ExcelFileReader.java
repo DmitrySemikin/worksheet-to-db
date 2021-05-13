@@ -115,19 +115,22 @@ public class ExcelFileReader {
                         dataRow.put(columnName, new ExcelValueWrapper(null));
                     } else {
                         Cell cell = row.getCell(cellNum);
-                        ExcelValueWrapper dataValue = switch (cell.getCellType()) {
-                            case BLANK -> new ExcelValueWrapper(null);
-                            case STRING -> new ExcelValueWrapper(cell.getStringCellValue());
-                            case NUMERIC ->
-                                DateUtil.isCellDateFormatted(cell)
-                                    ? new ExcelValueWrapper(cell.getLocalDateTimeCellValue())
-                                    : new ExcelValueWrapper(cell.getNumericCellValue());
-                            case BOOLEAN -> new ExcelValueWrapper(cell.getBooleanCellValue());
-                            default -> throw new ExcelFileStructureException(
-                                    "Sheet " + sheetName + ", row num " + rowNum + ", column " + columnName +
-                                    " (" + cellNum + ")" + ": Unsupported cell type: " + cell.getCellType()
-                            );
-                        };
+                        final ExcelValueWrapper dataValue =
+                            cell == null
+                                ? new ExcelValueWrapper(null)
+                                : switch (cell.getCellType()) {
+                                    case BLANK -> new ExcelValueWrapper(null);
+                                    case STRING -> new ExcelValueWrapper(cell.getStringCellValue());
+                                    case NUMERIC ->
+                                        DateUtil.isCellDateFormatted(cell)
+                                            ? new ExcelValueWrapper(cell.getLocalDateTimeCellValue())
+                                            : new ExcelValueWrapper(cell.getNumericCellValue());
+                                    case BOOLEAN -> new ExcelValueWrapper(cell.getBooleanCellValue());
+                                    default -> throw new ExcelFileStructureException(
+                                            "Sheet " + sheetName + ", row num " + rowNum + ", column " + columnName +
+                                            " (" + cellNum + ")" + ": Unsupported cell type: " + cell.getCellType()
+                                    );
+                                };
                         dataRow.put(columnName, dataValue);
                     }
                 }
