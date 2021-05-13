@@ -9,7 +9,11 @@ import java.util.Map;
 public class App {
     public static void main(String[] args) throws ExcelFileStructureException, IOException {
 
-        final Path inputFilePath = Paths.get("C:\\d\\tmp\\input.xlsx");
+        if (args.length != 1) {
+            throw new IllegalArgumentException("Application takes exactly one argument: path to excel file");
+        }
+
+        final Path inputFilePath = Paths.get(args[0]);
         Map<String, List<Map<String, ExcelValueWrapper>>> data = ExcelFileReader.readExcelFile(inputFilePath);
         System.out.println("Done.");
     }
