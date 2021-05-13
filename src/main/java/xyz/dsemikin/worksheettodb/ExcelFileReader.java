@@ -23,6 +23,7 @@ public class ExcelFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelFileReader.class);
 
+    // TODO: Decompose to multiple methods, so that the whole thing is more readable.
     public static Map<String, List<Map<String, ExcelValueWrapper>>> readExcelFile(
             final Path excelFilePath
     ) throws IOException, ExcelFileStructureException {
