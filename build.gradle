@@ -15,5 +15,5 @@ dependencies {
 }
 
 application {
-    mainClassName = 'xyz.dsemikin.worksheettodb.App'
+    mainClass.set('xyz.dsemikin.worksheettodb.App')
 }
