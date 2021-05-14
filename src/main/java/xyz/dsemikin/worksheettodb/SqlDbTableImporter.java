@@ -81,7 +81,7 @@ public class SqlDbTableImporter {
                             final int parameterIndex = columnNum + 1; // parameterIndex is 1-based
                             switch (columnType) {
                                 case DOUBLE  -> statement.setDouble(parameterIndex, value.maybeDoubleValue());
-                                case DATE    -> statement.setTimestamp(parameterIndex, Timestamp.valueOf(value.maybeDateValue()));
+                                case DATE    -> statement.setTimestamp(parameterIndex, value.maybeDateValue() == null ? null : Timestamp.valueOf(value.maybeDateValue()));
                                 case BOOLEAN -> statement.setBoolean(parameterIndex, value.maybeBooleanValue());
                                 case STRING  -> statement.setString(parameterIndex, value.maybeStringValue());
                                 case EMPTY   -> statement.setString(parameterIndex, ""); // by convention we use empty string
@@ -254,11 +254,41 @@ public class SqlDbTableImporter {
     }
 
     private static String simplifyStringForDbName(final String baseName) {
-        return baseName.toLowerCase(Locale.ROOT); // TODO
+        final String lowerCaseName = baseName.toLowerCase(Locale.ROOT);
+        final char[] lowerCaseNameChars = lowerCaseName.toCharArray();
+        final char[] simplifiedNameChars = new char[lowerCaseNameChars.length];
+        for (int charNum = 0; charNum < lowerCaseNameChars.length; ++charNum) {
+            final char inChar = lowerCaseNameChars[charNum];
+            if (Character.isLetter(inChar) || Character.isDigit(inChar) || inChar == '_') {
+                simplifiedNameChars[charNum] = inChar;
+            } else {
+                simplifiedNameChars[charNum] = '_';
+            }
+        }
+        String simplifiedName = new String(simplifiedNameChars);
+        if (Character.isDigit(simplifiedName.toCharArray()[0])) {
+            simplifiedName = "_" + simplifiedName;
+        }
+        return simplifiedName;
     }
 
     private static String ensureNameIsUnique(final String baseName, final Set<String> existingNames) {
-        return baseName; // TODO
+        if (!existingNames.contains(baseName)) {
+            return baseName;
+        }
+
+        String newName;
+        final int maxSuffixNum = 1000;
+        for (int suffixNum = 0; suffixNum < maxSuffixNum; ++suffixNum) {
+            newName = String.format("%s_%03d", baseName, suffixNum);
+            if (!existingNames.contains(newName)) {
+                return newName;
+            }
+        }
+        throw new RuntimeException(
+                "Failed to generate unique name for base name: " + baseName +
+                        " and existing names count: " + existingNames.size()
+        );
     }
 
     private static class TableDefinitions {
