@@ -1,5 +1,9 @@
 # worksheet-to-db #
 
+This project is published under the AGPL v3 license.
+See [LICENSE.txt](LICENSE.txt) for details.
+
+
 ## TODO ##
 
 * Change code to (optionally) create "id" column.
