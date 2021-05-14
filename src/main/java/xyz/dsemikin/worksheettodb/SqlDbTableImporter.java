@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -80,9 +81,21 @@ public class SqlDbTableImporter {
                             ExcelValueWrapper value = rowData.get(fieldName);
                             final int parameterIndex = columnNum + 1; // parameterIndex is 1-based
                             switch (columnType) {
-                                case DOUBLE  -> statement.setDouble(parameterIndex, value.maybeDoubleValue());
+                                case DOUBLE  -> {
+                                    if (value.maybeDoubleValue() == null) {
+                                        statement.setNull(parameterIndex, Types.DOUBLE);
+                                    } else {
+                                        statement.setDouble(parameterIndex, value.maybeDoubleValue());
+                                    }
+                                }
                                 case DATE    -> statement.setTimestamp(parameterIndex, value.maybeDateValue() == null ? null : Timestamp.valueOf(value.maybeDateValue()));
-                                case BOOLEAN -> statement.setBoolean(parameterIndex, value.maybeBooleanValue());
+                                case BOOLEAN -> {
+                                    if (value.maybeBooleanValue() == null) {
+                                        statement.setNull(parameterIndex, Types.BOOLEAN);
+                                    } else {
+                                        statement.setBoolean(parameterIndex, value.maybeBooleanValue());
+                                    }
+                                }
                                 case STRING  -> statement.setString(parameterIndex, value.maybeStringValue());
                                 case EMPTY   -> statement.setString(parameterIndex, ""); // by convention we use empty string
                                 default -> throw new IllegalStateException(
